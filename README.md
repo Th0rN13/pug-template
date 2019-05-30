@@ -1,9 +1,17 @@
 # pug-template
 
-TODO
+## TODO
 
 mixins for svg icons
 
 compile svgicons inline in pug
 
-remake sass * selectors (include normalize.css)
+## Manual
+
+`npm install` (or `yarn`) for download dependencies
+
+`gulp dev` for development - build and watch for files
+
+`gulp build` for build minify version
+
+`gulp beauty` for build beauty version

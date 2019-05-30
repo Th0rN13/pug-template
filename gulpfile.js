@@ -52,6 +52,16 @@ let config = {
   logPrefix: "FrontEnd"
 };
 
+gulp.task('html:dev', function () {
+  return gulp.src(path.src.pug)
+    .pipe(plumber())
+    .pipe(fileinclude({ indent: true }))
+    .pipe(replace(/\/\/#.*$/gm, ''))
+    .pipe(pug())
+    .pipe(gulp.dest(path.build.html))
+    .pipe(browserSync.stream());
+});
+
 gulp.task('html:build', function () {
   return gulp.src(path.src.pug)
     .pipe(plumber())
@@ -59,6 +69,27 @@ gulp.task('html:build', function () {
     .pipe(replace(/\/\/#.*$/gm, ''))
     .pipe(pug())
     .pipe(gulp.dest(path.build.html))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('html:beauty', function () {
+  return gulp.src(path.src.pug)
+    .pipe(plumber())
+    .pipe(fileinclude({ indent: true }))
+    .pipe(replace(/\/\/#.*$/gm, ''))
+    .pipe(pug({ pretty: true }))
+    .pipe(gulp.dest(path.build.html))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('js:dev', function () {
+  return gulp.src(path.src.js)
+    .pipe(plumber())
+    .pipe(fileinclude())
+    .pipe(sourcemaps.init())
+    .pipe(uglify())
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(path.build.js))
     .pipe(browserSync.stream());
 });
 
@@ -73,6 +104,29 @@ gulp.task('js:build', function () {
     .pipe(browserSync.stream());
 });
 
+
+gulp.task('js:beauty', function () {
+  return gulp.src(path.src.js)
+    .pipe(plumber())
+    .pipe(fileinclude())
+    .pipe(sourcemaps.init())
+    .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest(path.build.js))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('style:dev', function () {
+  return gulp.src(path.src.style)
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .pipe(prefixer())
+    .pipe(cssmin())
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(path.build.css))
+    .pipe(browserSync.stream());
+});
+
 gulp.task('style:build', function () {
   return gulp.src(path.src.style)
     .pipe(plumber())
@@ -81,6 +135,18 @@ gulp.task('style:build', function () {
     .pipe(prefixer())
     .pipe(cssmin())
     .pipe(sourcemaps.write())
+    .pipe(gulp.dest(path.build.css))
+    .pipe(browserSync.stream());
+});
+
+
+gulp.task('style:beauty', function () {
+  return gulp.src(path.src.style)
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .pipe(prefixer())
+    .pipe(sourcemaps.write('./maps'))
     .pipe(gulp.dest(path.build.css))
     .pipe(browserSync.stream());
 });
@@ -115,6 +181,14 @@ gulp.task('clean', function (cb) {
   rimraf(path.clean, cb);
 });
 
+gulp.task('dev', gulp.parallel(
+  'html:build',
+  'js:build',
+  'style:build',
+  'fonts:build',
+  'image:build'
+));
+
 gulp.task('build', gulp.parallel(
   'html:build',
   'js:build',
@@ -123,4 +197,12 @@ gulp.task('build', gulp.parallel(
   'image:build'
 ));
 
-gulp.task('default', gulp.series('build', 'watch'));
+gulp.task('beauty', gulp.parallel(
+  'html:beauty',
+  'js:beauty',
+  'style:beauty',
+  'fonts:build',
+  'image:build'
+));
+
+gulp.task('default', gulp.series('dev', 'watch'));
